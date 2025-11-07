@@ -4,6 +4,7 @@ import { type CollectionEntry, render } from "astro:content";
 import Masthead from "@/components/blog/Masthead.astro";
 import TOC from "@/components/blog/TOC.astro";
 import WebMentions from "@/components/blog/webmentions/index.astro";
+import WalineComment from "@/components/WalineComment.astro"; // 新增导入
 
 import BaseLayout from "./Base.astro";
 
@@ -35,6 +36,11 @@ const { headings } = await render(post);
 				class="prose prose-sm prose-cactus mt-12 max-w-2xl prose-headings:font-semibold prose-headings:text-accent-2 prose-headings:before:absolute prose-headings:before:-ms-4 prose-headings:before:text-accent sm:prose-headings:before:content-['#'] sm:prose-th:before:content-none"
 			>
 				<slot />
+				<!-- 新增：Waline 评论区 -->
+				<section class="mt-12 border-t pt-8" aria-label="评论区">
+					<h3 class="text-xl font-semibold text-accent-2 mb-6">评论</h3>
+					<WalineComment />
+				</section>
 				<WebMentions />
 			</div>
 		</article>
