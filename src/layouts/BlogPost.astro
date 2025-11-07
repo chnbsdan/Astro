@@ -28,7 +28,11 @@ const { headings } = await render(post);
 	}}
 >
 	<div class="gap-x-10 lg:flex lg:items-start">
-		{!!headings.length && <TOC headings={headings} />}
+		{!!headings.length && 
+			<div class="lg:w-80">  <!-- 新增：包裹 TOC 并设置宽度 -->
+				<TOC headings={headings} />
+			</div>
+		}
 		<article class="flex-grow break-words" data-pagefind-body>
 			<div id="blog-hero"><Masthead content={post} /></div>
 			<!-- 修改：博文宽度 -->
