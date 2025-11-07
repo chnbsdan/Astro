@@ -1,0 +1,76 @@
+---
+// src/components/WalineComment.astro
+---
+
+<div id="waline-comment" class="waline-container"></div>
+
+<style>
+  .waline-container {
+    margin-top: 2rem;
+  }
+  
+  /* 可选：自定义 Waline 样式以匹配你的博客主题 */
+  :global(.wl-count) {
+    color: var(--color-accent-2);
+  }
+  
+  :global(.wl-btn) {
+    background-color: var(--color-primary);
+  }
+  
+  :global(.wl-btn:hover) {
+    background-color: var(--color-primary-dark);
+  }
+</style>
+
+<script>
+  // 等待页面加载完成
+  document.addEventListener('DOMContentLoaded', function() {
+    // 动态加载 Waline CSS
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/@waline/client@v3/dist/waline.css';
+    document.head.appendChild(link);
+    
+    // 动态加载 Waline JS
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.innerHTML = `
+      import { init } from 'https://unpkg.com/@waline/client@v3/dist/waline.js';
+      
+      // 初始化 Waline
+      const waline = init({
+        el: '#waline-comment',
+        serverURL: 'https://waline.hangdn.com',
+        path: window.location.pathname,
+        pageview: true,
+        lang: 'zh-CN',
+        emoji: [
+          'https://unpkg.com/@waline/emojis@1.2.0/weibo',
+          'https://unpkg.com/@waline/emojis@1.2.0/bilibili',
+          'https://unpkg.com/@waline/emojis@1.2.0/qq',
+          'https://unpkg.com/@waline/emojis@1.2.0/tieba',
+          'https://unpkg.com/@waline/emojis@1.2.0/tw-emoji',
+        ],
+        dark: document.documentElement.classList.contains('dark'),
+        // 更多配置选项：https://waline.js.org/reference/client.html
+      });
+      
+      // 监听主题变化（如果你的博客支持暗色模式）
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.attributeName === 'class') {
+            const isDark = document.documentElement.classList.contains('dark');
+            waline.update({ dark: isDark });
+          }
+        });
+      });
+      
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+    `;
+    document.head.appendChild(script);
+  });
+</script>
