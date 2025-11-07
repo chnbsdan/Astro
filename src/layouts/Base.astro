@@ -22,12 +22,29 @@ const {
 		<link
 			rel="stylesheet"
 			href="https://cdn.jsdelivr.net/npm/katex@0.15.3/dist/katex.min.css"
-		/></head
-	>
-	<!-- 修改 max-w-6xl 最大宽度-->
+		/>
+	</head>
+
 	<body
 		class="mx-auto flex min-h-screen max-w-4xl flex-col bg-bgColor px-4 pt-16 font-mono text-sm font-normal text-textColor antialiased sm:px-8"
 	>
+		<!-- 背景轮播容器 -->
+		<div id="background-carousel">
+			<img src="https://webp.hangdn.com/fg/fg1.jpg" class="background-slide active" alt="bg1">
+			<img src="https://webp.hangdn.com/fg/fg2.jpg" class="background-slide" alt="bg2">
+			<img src="https://webp.hangdn.com/fg/yk5.jpg" class="background-slide" alt="bg3">
+			<img src="https://pan.hangdn.com/raw/img/352347587.jpg" class="background-slide" alt="bg4">
+			<img src="https://pan.hangdn.com/raw/img/377786273.jpg" class="background-slide" alt="bg5">
+			<img src="https://webp.hangdn.com/fg/fj22.jpg" class="background-slide" alt="bg6">
+			<img src="https://webp.hangdn.com/fg/yk1.jpg" class="background-slide" alt="bg7">
+			<img src="https://webp.hangdn.com/fg/yk2.jpg" class="background-slide" alt="bg8">
+			<img src="https://webp.hangdn.com/fg/yk3.jpg" class="background-slide" alt="bg9">
+			<img src="https://webp.hangdn.com/fg/sh3.jpg" class="background-slide" alt="bg10">
+			<img src="https://webp.hangdn.com/fg/sh2.jpg" class="background-slide" alt="bg11">
+			<img src="https://webp.hangdn.com/fg/sh1.jpg" class="background-slide" alt="bg12">
+			<img src="https://webp.hangdn.com/fg/bj1.jpg" class="background-slide" alt="bg13">
+		</div>
+
 		<ThemeProvider />
 		<SkipLink />
 		<Header />
@@ -35,5 +52,81 @@ const {
 			<slot />
 		</main>
 		<Footer />
+
+		<style is:global>
+			/* 背景轮播样式 */
+			#background-carousel {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				z-index: -1;
+				overflow: hidden;
+			}
+			
+			.background-slide {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				opacity: 0;
+				transition: opacity 1.5s ease-in-out;
+				filter: brightness(0.4); /* 降低亮度避免影响文字阅读 */
+			}
+			
+			.background-slide.active {
+				opacity: 1;
+			}
+			
+			/* 确保内容在背景之上 */
+			body {
+				position: relative;
+			}
+			
+			body > *:not(#background-carousel) {
+				position: relative;
+				z-index: 1;
+			}
+		</style>
+
+		<script is:inline>
+			document.addEventListener('DOMContentLoaded', function() {
+				const slides = document.querySelectorAll('.background-slide');
+				let currentSlide = 0;
+				const slideCount = slides.length;
+				
+				// 轮播函数
+				function nextSlide() {
+					// 隐藏当前幻灯片
+					slides[currentSlide].classList.remove('active');
+					
+					// 移动到下一张
+					currentSlide = (currentSlide + 1) % slideCount;
+					
+					// 显示新幻灯片
+					slides[currentSlide].classList.add('active');
+				}
+				
+				// 预加载图片
+				function preloadImages() {
+					slides.forEach(slide => {
+						const img = new Image();
+						img.src = slide.src;
+					});
+				}
+				
+				// 初始化：预加载并开始轮播
+				preloadImages();
+				
+				// 每5秒切换一次
+				setInterval(nextSlide, 5000);
+				
+				// 初始显示第一张（已经是active状态）
+				console.log(`背景轮播已启动，共 ${slideCount} 张图片`);
+			});
+		</script>
 	</body>
 </html>
