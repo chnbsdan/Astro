@@ -4,7 +4,7 @@ import { type CollectionEntry, render } from "astro:content";
 import Masthead from "@/components/blog/Masthead.astro";
 import TOC from "@/components/blog/TOC.astro";
 import WebMentions from "@/components/blog/webmentions/index.astro";
-import WalineComment from "@/components/WalineComment.astro"; // 新增导入
+import WalineComment from "@/components/WalineComment.astro";
 
 import BaseLayout from "./Base.astro";
 
@@ -29,18 +29,24 @@ const { headings } = await render(post);
 >
 	<div class="gap-x-10 lg:flex lg:items-start">
 		{!!headings.length && <TOC headings={headings} />}
-		<article class="flex-grow break-words" data-pagefind-body>
+		<article class="flex-grow break-words">
 			<div id="blog-hero"><Masthead content={post} /></div>
-			<!-- 恢复原码宽度：max-w-2xl -->
+			<!-- 将 data-pagefind-body 移到主要内容区域 -->
 			<div
 				class="prose prose-sm prose-cactus mt-12 max-w-2xl prose-headings:font-semibold prose-headings:text-accent-2 prose-headings:before:absolute prose-headings:before:-ms-4 prose-headings:before:text-accent sm:prose-headings:before:content-['#'] sm:prose-th:before:content-none"
+				data-pagefind-body
 			>
 				<slot />
-				<!-- 新增：Waline 评论区 -->
-				<section class="mt-12 border-t pt-8" aria-label="评论区">
-					<h3 class="text-xl font-semibold text-accent-2 mb-6">评论</h3>
-					<WalineComment />
-				</section>
+			</div>
+			
+			<!-- 评论区放在 data-pagefind-body 之外 -->
+			<section class="mt-12 border-t pt-8 max-w-2xl mx-auto" aria-label="评论区">
+				<h3 class="text-xl font-semibold text-accent-2 mb-6">评论</h3>
+				<WalineComment />
+			</section>
+			
+			<!-- WebMentions 也放在外面 -->
+			<div class="max-w-2xl mx-auto">
 				<WebMentions />
 			</div>
 		</article>
