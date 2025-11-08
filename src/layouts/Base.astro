@@ -4,7 +4,7 @@ import { type CollectionEntry, render } from "astro:content";
 import Masthead from "@/components/blog/Masthead.astro";
 import TOC from "@/components/blog/TOC.astro";
 import WebMentions from "@/components/blog/webmentions/index.astro";
-import WalineComment from "@/components/WalineComment.astro"; // 新增导入
+import WalineComment from "@/components/WalineComment.astro";
 
 import BaseLayout from "./Base.astro";
 
@@ -34,6 +34,7 @@ const { headings } = await render(post);
 			<!-- 修改：博文宽度 -->
 			<div
 				class="prose prose-sm prose-cactus mt-12 max-w-2xl prose-headings:font-semibold prose-headings:text-accent-2 prose-headings:before:absolute prose-headings:before:-ms-4 prose-headings:before:text-accent sm:prose-headings:before:content-['#'] sm:prose-th:before:content-none"
+				id="article-content"
 			>
 				<slot />
 				<!-- 新增：Waline 评论区 -->
@@ -66,10 +67,66 @@ const { headings } = await render(post);
 </BaseLayout>
 
 <script>
-	const scrollBtn = document.getElementById("to-top-btn") as HTMLButtonElement;
-	const targetHeader = document.getElementById("blog-hero") as HTMLDivElement;
+	const scrollBtn = document.getElementById("to-top-btn");
+	const targetHeader = document.getElementById("blog-hero");
 
-	function callback(entries: IntersectionObserverEntry[]) {
+	// 修复目录点击定位问题
+	function initTOCNavigation() {
+		const tocLinks = document.querySelectorAll('a[href^="#"]');
+		
+		tocLinks.forEach(link => {
+			link.addEventListener('click', (e) => {
+				e.preventDefault();
+				
+				const targetId = link.getAttribute('href').substring(1);
+				const targetElement = document.getElementById(targetId);
+				
+				if (targetElement) {
+					// 计算偏移量，考虑固定头部的高度
+					const headerHeight = document.querySelector('header')?.offsetHeight || 80;
+					const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight - 20;
+					
+					window.scrollTo({
+						top: targetPosition,
+						behavior: 'smooth'
+					});
+					
+					// 更新URL哈希（可选）
+					history.pushState(null, null, `#${targetId}`);
+				}
+			});
+		});
+	}
+
+	// 修复滚动高亮功能
+	function initTOCHighlight() {
+		const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+		const tocLinks = document.querySelectorAll('.toc-link');
+		const headerHeight = document.querySelector('header')?.offsetHeight || 80;
+		
+		function updateActiveTOCLink() {
+			let currentActive = null;
+			
+			headings.forEach((heading, index) => {
+				const rect = heading.getBoundingClientRect();
+				if (rect.top <= headerHeight + 100) {
+					currentActive = heading.id;
+				}
+			});
+			
+			tocLinks.forEach(link => {
+				link.classList.remove('active');
+				if (link.getAttribute('href') === `#${currentActive}`) {
+					link.classList.add('active');
+				}
+			});
+		}
+		
+		window.addEventListener('scroll', updateActiveTOCLink);
+		updateActiveTOCLink(); // 初始化
+	}
+
+	function callback(entries) {
 		entries.forEach((entry) => {
 			// only show the scroll to top button when the heading is out of view
 			scrollBtn.dataset.show = (!entry.isIntersecting).toString();
@@ -82,4 +139,51 @@ const { headings } = await render(post);
 
 	const observer = new IntersectionObserver(callback);
 	observer.observe(targetHeader);
+
+	// 初始化目录功能
+	document.addEventListener('DOMContentLoaded', () => {
+		initTOCNavigation();
+		initTOCHighlight();
+	});
+
+	// 如果使用Turbolinks或类似技术，也需要在页面变化时重新初始化
+	if (typeof Turbo !== 'undefined') {
+		document.addEventListener('turbo:load', () => {
+			initTOCNavigation();
+			initTOCHighlight();
+		});
+	}
 </script>
+
+<style is:global>
+	/* 确保标题有合适的ID和滚动边距 */
+	.prose h1,
+	.prose h2,
+	.prose h3,
+	.prose h4,
+	.prose h5,
+	.prose h6 {
+		scroll-margin-top: 100px; /* 考虑固定头部的高度 */
+		position: relative;
+	}
+
+	/* 目录链接激活状态样式 */
+	.toc-link.active {
+		color: #3b82f6 !important; /* 蓝色高亮 */
+		font-weight: 600 !important;
+		background-color: rgba(59, 130, 246, 0.1) !important;
+	}
+
+	/* 确保目录容器有正确的样式 */
+	.toc-container {
+		position: sticky;
+		top: 100px;
+		max-height: calc(100vh - 120px);
+		overflow-y: auto;
+	}
+
+	/* 平滑滚动 */
+	html {
+		scroll-behavior: smooth;
+	}
+</style>
