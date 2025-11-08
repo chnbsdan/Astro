@@ -4,7 +4,7 @@ import { type CollectionEntry, render } from "astro:content";
 import Masthead from "@/components/blog/Masthead.astro";
 import TOC from "@/components/blog/TOC.astro";
 import WebMentions from "@/components/blog/webmentions/index.astro";
-import WalineComment from "@/components/WalineComment.astro";
+import WalineComment from "@/components/WalineComment.astro"; // 新增导入
 
 import BaseLayout from "./Base.astro";
 
@@ -28,12 +28,15 @@ const { headings } = await render(post);
 	}}
 >
 	<div class="gap-x-10 lg:flex lg:items-start">
+		{!!headings.length && <TOC headings={headings} />}
 		<article class="flex-grow break-words" data-pagefind-body>
 			<div id="blog-hero"><Masthead content={post} /></div>
+			<!-- 修改：博文宽度 -->
 			<div
 				class="prose prose-sm prose-cactus mt-12 max-w-4xl prose-headings:font-semibold prose-headings:text-accent-2 prose-headings:before:absolute prose-headings:before:-ms-4 prose-headings:before:text-accent sm:prose-headings:before:content-['#'] sm:prose-th:before:content-none"
 			>
 				<slot />
+				<!-- 新增：Waline 评论区 -->
 				<section class="mt-12 border-t pt-8" aria-label="评论区">
 					<h3 class="text-xl font-semibold text-accent-2 mb-6">评论</h3>
 					<WalineComment />
@@ -41,7 +44,6 @@ const { headings } = await render(post);
 				<WebMentions />
 			</div>
 		</article>
-		{!!headings.length && <TOC headings={headings} />}  <!-- 移除包裹的 div -->
 	</div>
 	<button
 		aria-label="Back to Top"
@@ -69,6 +71,7 @@ const { headings } = await render(post);
 
 	function callback(entries: IntersectionObserverEntry[]) {
 		entries.forEach((entry) => {
+			// only show the scroll to top button when the heading is out of view
 			scrollBtn.dataset.show = (!entry.isIntersecting).toString();
 		});
 	}
