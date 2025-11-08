@@ -1,16 +1,16 @@
 ---
-import PageLayout from "@/layouts/Base.astro";
-import SocialList from "@/components/SocialList.astro";
-export const prerender = true;
-
-const meta = {
-	description: "hangdn blog",
-	// 修改：hangdn
-	title: "hangdn",
-};
+import BaseLayout from "@/layouts/Base.astro";
 ---
 
-<PageLayout meta={meta}>
+<BaseLayout meta={{ title: "项目" }}>
+	<div class="prose">
+		<h1>我的项目</h1>
+		<p>这里展示我的一些项目作品...</p>
+		<!-- 项目内容 -->
+	</div>
+
+
+
 	<h1 class="title mb-8">hangdn</h1>
 
 	<div class="prose prose-sm prose-cactus max-w-none">
@@ -33,4 +33,4 @@ const meta = {
 	<div>
 		<SocialList />
 	</div>
-</PageLayout>
+</BaseLayout>
