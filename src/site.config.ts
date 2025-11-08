@@ -38,6 +38,10 @@ export const menuLinks: { path: string; title: string }[] = [
 		path: "/posts/",
 		title: "博客",
 	},
+  {
+		path: "/hangdn/",
+		title: "hangdn",
+	},
 	{
 		path: "/notes/",
 		title: "笔记",
